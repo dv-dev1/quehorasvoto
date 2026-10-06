@@ -1,3 +1,4 @@
+import http.client
 import io
 import json
 import urllib.error
@@ -104,6 +105,18 @@ class TestSecao(unittest.TestCase):
         b = fake_baixar({q.url_aux(*SEC): aux("h1"), DIR + "/h1/h1-log.jez": b"nao e zip"})
         self.assertIsNone(q.processar_secao(*SEC, baixar=b))
 
+    def test_deflate_corrompido_e_none(self):
+        buf = io.BytesIO()
+        with zipfile.ZipFile(buf, "w", compression=zipfile.ZIP_DEFLATED) as z:
+            z.writestr("logd.dat", FIXTURE.encode("latin1"))
+            info = z.getinfo("logd.dat")
+        dados = bytearray(buf.getvalue())
+        inicio = info.header_offset + 30 + len(info.filename.encode("ascii")) + len(info.extra)
+        meio = inicio + info.compress_size // 2
+        for i in range(meio, meio + 20):
+            dados[i] ^= 0xff
+        self.assertIsNone(q.ler_jez(dados))
+
     def test_erro_de_rede_propaga(self):
         b = fake_baixar({q.url_aux(*SEC): urllib.error.URLError("timeout")})
         with self.assertRaises(urllib.error.URLError):
@@ -124,6 +137,14 @@ class TestBaixar(unittest.TestCase):
     @mock.patch("quehorasvoto.urllib.request.urlopen")
     def test_503_retenta(self, urlopen):
         urlopen.side_effect = [http_erro(503), io.BytesIO(b"ok")]
+        self.assertEqual(q.baixar("https://example.com/", espera=0), b"ok")
+
+    @mock.patch("quehorasvoto.urllib.request.urlopen")
+    def test_leitura_incompleta_retenta(self, urlopen):
+        resposta = mock.MagicMock()
+        resposta.__enter__.return_value = resposta
+        resposta.read.side_effect = http.client.IncompleteRead(b"")
+        urlopen.side_effect = [resposta, io.BytesIO(b"ok")]
         self.assertEqual(q.baixar("https://example.com/", espera=0), b"ok")
 
     @mock.patch("quehorasvoto.urllib.request.urlopen")

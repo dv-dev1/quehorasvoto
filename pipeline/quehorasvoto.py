@@ -1,6 +1,7 @@
 """Quantas pessoas votaram em cada meia hora de cada seção, a partir dos logs de urna do TSE."""
 
 import argparse
+import http.client
 import io
 import json
 import sys
@@ -8,6 +9,7 @@ import time
 import urllib.error
 import urllib.request
 import zipfile
+import zlib
 
 PLEITOS = {
     "3220": ("ele2026", "04/10/2026"),
@@ -86,7 +88,7 @@ def baixar(url, tentativas=4, espera=1.0):
             if e.code == 404:
                 return None
             erro = e
-        except (urllib.error.URLError, TimeoutError, ConnectionError) as e:
+        except (urllib.error.URLError, TimeoutError, http.client.IncompleteRead, OSError) as e:
             erro = e
         if n < tentativas - 1:
             time.sleep(espera * 2**n)
@@ -97,7 +99,7 @@ def ler_jez(dados):
     try:
         with zipfile.ZipFile(io.BytesIO(dados)) as z:
             return z.read("logd.dat").decode("latin1")
-    except (zipfile.BadZipFile, KeyError):
+    except (zipfile.BadZipFile, KeyError, zlib.error, EOFError):
         return None
 
 
