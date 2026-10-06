@@ -32,13 +32,25 @@ export const linhaDoTempo = (...series) => [...new Set(series.flat().map((b) => 
 // vazio venceria o desempate por menos eleitores.
 const BLOCOS_DE_VOTACAO = 18;
 
-export function melhorBloco(s) {
+export function melhorBloco(s, abertura = s[0]?.hora) {
   if (!s.length) return null;
-  const fim = horaDoBloco(`${s[0].hora.slice(0, 2)}:00`, BLOCOS_DE_VOTACAO);
+  const fim = horaDoBloco(`${abertura.slice(0, 2)}:00`, BLOCOS_DE_VOTACAO);
   const com = s.filter((b) => b.eleitores > 0 && b.hora < fim);
   if (!com.length) return null;
   return com.reduce((a, b) => (b.pct < a.pct || (b.pct === a.pct && b.eleitores < a.eleitores) ? b : a));
 }
+
+export function aberturaDoMunicipio(secoes) {
+  const contagem = {};
+  for (const secao of Object.values(secoes)) {
+    const inicio = secao['3220']?.inicio;
+    if (inicio) contagem[inicio] = (contagem[inicio] || 0) + 1;
+  }
+  return Object.keys(contagem).sort((a, b) => contagem[b] - contagem[a] || a.localeCompare(b))[0];
+}
+
+const MINUSCULAS = new Set(['de', 'da', 'do', 'das', 'dos', 'e']);
+export const nome = (s) => s.toLowerCase().replace(/[^\s'-]+/g, (w, i) => (i && MINUSCULAS.has(w) ? w : w[0].toUpperCase() + w.slice(1)));
 
 // O hash vira caminho de fetch: validar cada parte impede buscar qualquer coisa fora de data/<uf>/<mun>.json.
 const PARTES = [['uf', /^[a-z]{2}$/], ['mun', /^\d{5}$/], ['zona', /^\d{4}$/], ['secao', /^\d{4}$/]];

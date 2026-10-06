@@ -1,5 +1,5 @@
 import { html, render, useState, useEffect, useRef } from './vendor/preact-htm.mjs';
-import { serie, melhorBloco, linhaDoTempo, lerHash, montarHash, posicaoNoRanking, faixa, pct } from './calc.mjs';
+import { serie, melhorBloco, aberturaDoMunicipio, linhaDoTempo, lerHash, montarHash, posicaoNoRanking, faixa, pct, nome } from './calc.mjs';
 
 const UFS = [
   ['ac', 'Acre'], ['al', 'Alagoas'], ['ap', 'Amapá'], ['am', 'Amazonas'], ['ba', 'Bahia'], ['ce', 'Ceará'],
@@ -15,8 +15,6 @@ const ROTULO = { tranquilo: 'Tranquilo', movimentado: 'Movimentado', fila: 'Fila
 const TURNO24 = { 452: '2024 · 1º turno', 453: '2024 · 2º turno' };
 const CHAVE = 'qhv:ultima';
 
-const MINUSCULAS = new Set(['de', 'da', 'do', 'das', 'dos', 'e']);
-const nome = (s) => s.toLowerCase().replace(/\S+/g, (w, i) => (i && MINUSCULAS.has(w) ? w : w[0].toUpperCase() + w.slice(1)));
 // O clique no ranking troca o hash e o card novo monta mais acima da página: o foco tem que ir junto.
 let focarMelhor = false;
 
@@ -79,7 +77,7 @@ function Secao({ mun, chave }) {
     focarMelhor = false;
   }, []);
   const s26 = serie(d['3220']);
-  const melhor = melhorBloco(s26);
+  const melhor = melhorBloco(s26, aberturaDoMunicipio(mun.secoes));
   if (!melhor) {
     return html`<section class="card vazio">Esta seção não tem log de urna em 2026 (urna substituída sem arquivo ou votação em cédula). Veja o ranking do município abaixo.</section>`;
   }
@@ -118,7 +116,7 @@ function Ranking({ mun, zonas, chave }) {
       ${zonas.length > 1 && html`<${Select} rotulo="Zona" valor=${zona} vazio="Todas" opcoes=${zonas.map((z) => [z, z])} aoMudar=${(z) => setZona(z || '')} />`}
     </div>
     <ol class="ranking">${lista.map(([k, p, n]) => html`
-      <li class=${k === chave ? 'sua' : ''}><a href=${`#${mun.uf}/${mun.cd}/${k}`} onClick=${() => { focarMelhor = true; }}>Zona ${k.split('/')[0]} · Seção ${k.split('/')[1]}</a>
+      <li class=${k === chave ? 'sua' : ''}><a href=${`#${mun.uf}/${mun.cd}/${k}`} onClick=${() => { focarMelhor = k !== chave; }}>Zona ${k.split('/')[0]} · Seção ${k.split('/')[1]}</a>
         <span>${p}% fila · ${n} eleitores${k === chave ? ' · sua seção' : ''}</span></li>`)}</ol>
     <p class="nota">Percentual de eleitores habilitados menos de 30 s depois do voto anterior, 1º turno de 2026.</p>
   </section>`;

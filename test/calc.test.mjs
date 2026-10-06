@@ -2,6 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
   pct, nivel, horaDoBloco, faixa, serie, linhaDoTempo, melhorBloco, lerHash, montarHash, posicaoNoRanking,
+  aberturaDoMunicipio, nome,
 } from '../site/calc.mjs';
 
 test('nivel nas bordas', () => {
@@ -50,6 +51,40 @@ test('melhorBloco ignora quem votou na fila depois do fechamento', () => {
   assert.equal(melhorBloco(acre).hora, '14:30');
 });
 
+test('melhorBloco limita seção tardia ao fechamento do município', () => {
+  const s = serie({
+    inicio: '09:00',
+    eleitores: [...Array(16).fill(10), 2, 1, 1],
+    fila: [...Array(15).fill(3), 0, 0, 0, 0],
+  });
+  assert.equal(melhorBloco(s, '08:00').hora, '16:30');
+});
+
+test('aberturaDoMunicipio usa a moda de 3220 e ignora seções sem log', () => {
+  assert.equal(aberturaDoMunicipio({
+    '0001/0001': { '3220': { inicio: '09:00' } },
+    '0001/0002': { '3220': { inicio: '08:00' } },
+    '0001/0003': { '3220': { inicio: '08:00' } },
+    '0001/0004': { '3220': null },
+    '0001/0005': { '452': { inicio: '09:00' } },
+  }), '08:00');
+});
+
+test('aberturaDoMunicipio desempata pela hora mais cedo', () => {
+  assert.equal(aberturaDoMunicipio({
+    '0001/0001': { '3220': { inicio: '08:00' } },
+    '0001/0002': { '3220': { inicio: '06:00' } },
+  }), '06:00');
+});
+
+test('aberturaDoMunicipio sem log de 3220 retorna undefined', () => {
+  assert.equal(aberturaDoMunicipio({}), undefined);
+  assert.equal(aberturaDoMunicipio({
+    '0001/0001': { '3220': null },
+    '0001/0002': { '452': { inicio: '08:00' } },
+  }), undefined);
+});
+
 test('lerHash aceita só o formato esperado', () => {
   assert.deepEqual(lerHash('#pb/19313/0014/0001'), { uf: 'pb', mun: '19313', zona: '0014', secao: '0001' });
   assert.deepEqual(lerHash('#PB/19313'), { uf: 'pb', mun: '19313' });
@@ -68,4 +103,10 @@ test('posicaoNoRanking com e sem zona', () => {
   assert.deepEqual(posicaoNoRanking(r, '0014/0001'), { pos: 3, total: 3 });
   assert.deepEqual(posicaoNoRanking(r, '0014/0001', '0014'), { pos: 2, total: 2 });
   assert.equal(posicaoNoRanking(r, '0099/0001'), null);
+});
+
+test('nome capitaliza depois de hífen e apóstrofo, preposição fica minúscula', () => {
+  assert.equal(nome('MOGI-GUAÇU'), 'Mogi-Guaçu');
+  assert.equal(nome("SANTA BÁRBARA D'OESTE"), "Santa Bárbara D'Oeste");
+  assert.equal(nome('RIO DE JANEIRO'), 'Rio de Janeiro');
 });

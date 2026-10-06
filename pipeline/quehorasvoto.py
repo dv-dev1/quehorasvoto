@@ -191,6 +191,9 @@ def escrever_json(caminho, obj):
 def rodar_uf(uf, saida, baixar=baixar, paralelo=8, ate=None):
     # Retomável: o JSON gravado é o checkpoint, e a próxima rodada da Action pula o que já existe.
     configs = {p: carregar_cs(p, uf, baixar) for p in PLEITOS}
+    if not _municipios(configs["3220"]):
+        print(f"falha {uf}: configuração 3220 ausente ou sem municípios", file=sys.stderr)
+        return 1
     destino = Path(saida) / uf
     escrever_json(destino / "index.json", indice(configs["3220"]))
     muns = [m["cd"] for m in _municipios(configs["3220"])]

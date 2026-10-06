@@ -27,7 +27,7 @@ select:disabled { color: var(--fraco); border-style: dashed; border-color: var(-
 [tabindex="-1"]:focus { outline: none; }
 .status, .tse { grid-column: 1 / -1; margin: 0; }
 .status { color: var(--movimentado); }
-.status:empty { display: none; }
+.status:empty { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 .vazio { color: var(--movimentado); }
 
 .destaque { display: grid; gap: 8px; justify-items: start; }

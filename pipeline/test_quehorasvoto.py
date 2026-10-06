@@ -231,6 +231,32 @@ def mapa_uf(quebrado):
 
 
 class TestUf(unittest.TestCase):
+    @mock.patch("quehorasvoto.urllib.request.urlopen")
+    def test_cs_404_preserva_indice(self, urlopen):
+        urlopen.side_effect = http_erro(404)
+        with tempfile.TemporaryDirectory() as d, mock.patch("sys.stderr", new_callable=io.StringIO) as erro:
+            arquivo = Path(d) / "pb" / "index.json"
+            q.escrever_json(arquivo, [["19313", "BANANEIRAS"]])
+            antes = arquivo.read_bytes()
+            retorno = q.rodar_uf("pb", d, baixar=q.baixar)
+            self.assertEqual(arquivo.read_bytes(), antes)
+            self.assertEqual(retorno, 1)
+            self.assertIn("3220", erro.getvalue())
+            self.assertIn("pb", erro.getvalue())
+
+    def test_cs_sem_municipios_preserva_indice(self):
+        for config in ({}, {"abr": []}, cs()):
+            with self.subTest(config=config), tempfile.TemporaryDirectory() as d:
+                arquivo = Path(d) / "pb" / "index.json"
+                q.escrever_json(arquivo, [["19313", "BANANEIRAS"]])
+                antes = arquivo.read_bytes()
+                baixar = fake_baixar({q.url_cs("3220", "pb"): json.dumps(config).encode()})
+                with mock.patch("sys.stderr", new_callable=io.StringIO) as erro:
+                    retorno = q.rodar_uf("pb", d, baixar=baixar)
+                self.assertEqual(arquivo.read_bytes(), antes)
+                self.assertEqual(retorno, 1)
+                self.assertIn("3220", erro.getvalue())
+
     def test_falha_isolada_e_retomada(self):
         with tempfile.TemporaryDirectory() as d:
             saida = Path(d)

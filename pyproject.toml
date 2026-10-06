@@ -1,9 +1,24 @@
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
 [project]
 name = "quehorasvoto"
 version = "0.1.0"
 description = "Melhor horário para votar na sua seção, a partir dos logs de urna do TSE"
 requires-python = ">=3.11"
 license = "MIT"
+dependencies = []
+
+[project.optional-dependencies]
+dev = ["ruff"]
+
+[project.scripts]
+quehorasvoto = "quehorasvoto:main"
+
+[tool.setuptools]
+py-modules = ["quehorasvoto"]
+package-dir = {"" = "pipeline"}
 
 [tool.ruff]
 line-length = 110
