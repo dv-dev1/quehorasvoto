@@ -43,7 +43,7 @@ function Grafico({ s26, s24, rotulo24, melhor }) {
   const a = por(s26), b = por(s24);
   const alt = (x) => `${(100 * x.eleitores) / max}%`;
   return html`
-    <div class="grafico" role="img" aria-label=${`Eleitores por meia hora em 2026. Melhor horário: ${faixa(melhor.hora)}.`}>
+    <div class="grafico" role="img" aria-label=${`Eleitores por meia hora no 1º turno de 2026, com ${rotulo24 || '2024'} atrás. Melhor horário: ${faixa(melhor.hora)}.`}>
       ${horas.map((h) => html`
         <div class=${`coluna ${melhor.hora === h ? 'melhor' : ''}`}>
           <div class="barras">
@@ -53,8 +53,8 @@ function Grafico({ s26, s24, rotulo24, melhor }) {
           <span class="hora">${h.endsWith(':00') ? `${h.slice(0, 2)}h` : ''}</span>
         </div>`)}
     </div>
-    <p class="legenda"><span><i class="ponto tranquilo"></i>Tranquilo</span><span><i class="ponto movimentado"></i>Movimentado</span>
-      <span><i class="ponto fila"></i>Fila</span>${s24.length ? html`<span><i class="ponto fantasma"></i>${rotulo24}</span>` : ''}</p>
+    <p class="legenda"><strong>1º turno 2026:</strong><span><i class="ponto tranquilo"></i>Tranquilo</span><span><i class="ponto movimentado"></i>Movimentado</span>
+      <span><i class="ponto fila"></i>Fila</span>${s24.length ? html`<span><i class="ponto fantasma"></i>Atrás: ${rotulo24}</span>` : ''}</p>
     <details><summary>Ver tabela</summary>
       <table><thead><tr><th>Horário</th><th>Votaram em 2026</th><th>Pegaram fila</th><th>Nível</th></tr></thead>
         <tbody>${s26.map((x) => html`<tr><td>${faixa(x.hora)}</td><td>${x.eleitores}</td><td>${x.pct}%</td><td>${ROTULO[x.nivel]}</td></tr>`)}</tbody>
@@ -93,9 +93,9 @@ function Secao({ mun, chave }) {
       ${pos && html`<div class="card"><span class="rotulo">Fila no município</span><strong>${pos.pos}ª de ${pos.total}</strong></div>`}
     </div>
     <section class="card">
-      <div class="titulo"><h2>Eleitores por meia hora</h2>
-        ${turnos.length > 1 && html`<div class="alternar" role="group" aria-label="Turno de 2024 no fundo do gráfico">${turnos.map((p) => html`
-          <button aria-pressed=${p === p24} onClick=${() => setP24(p)}>${TURNO24[p]}</button>`)}</div>`}
+      <div class="titulo"><h2>Eleitores por meia hora no 1º turno de 2026</h2>
+        ${turnos.length > 1 && html`<div class="alternar" role="group" aria-labelledby="comparar"><span id="comparar">Comparar com 2024</span>${turnos.map((p) => html`
+          <button aria-pressed=${p === p24} onClick=${() => setP24(p)}>${TURNO24[p].split(' · ')[1]}</button>`)}</div>`}
       </div>
       <${Grafico} s26=${s26} s24=${s24} rotulo24=${TURNO24[p24]} melhor=${melhor} />
     </section>`;
