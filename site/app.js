@@ -61,11 +61,11 @@ function Secao({ mun, chave }) {
   const turnos = ['453', '452'].filter((p) => d[p]);
   const [p24, setP24] = useState(turnos[0]);
   const s26 = serie(d['3220']);
-  if (!s26.length) {
+  const melhor = melhorBloco(s26);
+  if (!melhor) {
     return html`<section class="card vazio">Esta seção não tem log de urna em 2026 (urna substituída sem arquivo ou votação em cédula). Veja o ranking do município abaixo.</section>`;
   }
   const s24 = serie(d[p24]);
-  const melhor = melhorBloco(s26);
   const total = s26.reduce((t, b) => t + b.eleitores, 0);
   const pico = s26.reduce((a, b) => (b.eleitores > a.eleitores ? b : a));
   const pos = posicaoNoRanking(mun.ranking, chave);
@@ -122,12 +122,22 @@ function App() {
     if (sel.secao) lembrar(h);
   }, [sel]);
   useEffect(() => {
+    let vivo = true;
     setIndice(null); setErro('');
-    if (sel.uf) buscar(`data/${sel.uf}/index.json`).then(setIndice, () => setErro('Os dados deste estado ainda não foram publicados.'));
+    if (sel.uf) buscar(`data/${sel.uf}/index.json`).then(
+      (d) => { if (vivo) setIndice(d); },
+      () => { if (vivo) setErro('Os dados deste estado ainda não foram publicados.'); },
+    );
+    return () => { vivo = false; };
   }, [sel.uf]);
   useEffect(() => {
-    setMun(null);
-    if (sel.uf && sel.mun) buscar(`data/${sel.uf}/${sel.mun}.json`).then(setMun, () => setErro('Os dados deste município ainda não foram publicados.'));
+    let vivo = true;
+    setMun(null); setErro('');
+    if (sel.uf && sel.mun) buscar(`data/${sel.uf}/${sel.mun}.json`).then(
+      (d) => { if (vivo) setMun(d); },
+      () => { if (vivo) setErro('Os dados deste município ainda não foram publicados.'); },
+    );
+    return () => { vivo = false; };
   }, [sel.uf, sel.mun]);
 
   const chaves = mun ? Object.keys(mun.secoes).filter((k) => '3220' in mun.secoes[k]) : [];
@@ -146,6 +156,7 @@ function App() {
       <a class="tse" href=${ONDE_VOTAR} target="_blank" rel="noopener">Não sabe sua zona e seção? Consulte no TSE</a>
     </section>
     ${erro && html`<p class="card aviso" role="status">${erro}</p>`}
+    ${mun && chave && !mun.secoes[chave] && html`<p class="card aviso">Seção não encontrada neste município.</p>`}
     ${mun && chave && mun.secoes[chave] && html`<${Secao} key=${chave} mun=${mun} chave=${chave} />`}
     ${mun && html`<${Ranking} mun=${mun} zonas=${zonas} chave=${chave} />`}
     <footer>Dados: logs de urna do TSE (1º turno 2026, 1º e 2º turnos 2024). Hora local da urna.
