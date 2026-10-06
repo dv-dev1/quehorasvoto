@@ -1,0 +1,55 @@
+name: dados
+on:
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency: dados
+jobs:
+  coletar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 350
+    strategy:
+      fail-fast: false
+      # Limita o paralelismo total contra o CDN do TSE: 8 jobs x 8 threads.
+      max-parallel: 8
+      matrix:
+        # sp primeiro: a capital leva ~2 h sem checkpoint e precisa começar cedo no job.
+        uf: [sp, ac, al, am, ap, ba, ce, df, es, go, ma, mg, ms, mt, pa, pb, pe, pi, pr, rj, rn, ro, rr, rs, sc, se, to]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      # --ate para antes do timeout do job, com folga para um município grande já começado terminar.
+      - run: python pipeline/quehorasvoto.py uf ${{ matrix.uf }} --saida site/data --paralelo 8 --ate 16200
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: dados-${{ matrix.uf }}
+          path: site/data/${{ matrix.uf }}
+          if-no-files-found: ignore
+          retention-days: 3
+  publicar:
+    needs: coletar
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: dados-*
+          path: baixado
+      - run: |
+          for d in baixado/dados-*; do
+            [ -d "$d" ] || continue
+            uf="${d#baixado/dados-}"
+            mkdir -p "site/data/$uf"
+            cp -r "$d/." "site/data/$uf/"
+          done
+      - run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add site/data
+          git diff --cached --quiet || git commit -m "dados: coleta $(date -u +%F)"
+          git pull --rebase
+          git push
