@@ -13,7 +13,8 @@ jobs:
       # Limita o paralelismo total contra o CDN do TSE: 8 jobs x 8 threads.
       max-parallel: 8
       matrix:
-        uf: [ac, al, am, ap, ba, ce, df, es, go, ma, mg, ms, mt, pa, pb, pe, pi, pr, rj, rn, ro, rr, rs, sc, se, sp, to]
+        # sp primeiro: a capital leva ~2 h sem checkpoint e precisa começar cedo no job.
+        uf: [sp, ac, al, am, ap, ba, ce, df, es, go, ma, mg, ms, mt, pa, pb, pe, pi, pr, rj, rn, ro, rr, rs, sc, se, to]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -40,6 +41,7 @@ jobs:
           path: baixado
       - run: |
           for d in baixado/dados-*; do
+            [ -d "$d" ] || continue
             uf="${d#baixado/dados-}"
             mkdir -p "site/data/$uf"
             cp -r "$d/." "site/data/$uf/"
