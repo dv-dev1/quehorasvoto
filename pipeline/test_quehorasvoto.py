@@ -216,5 +216,45 @@ class TestMunicipio(unittest.TestCase):
             self.assertEqual(list(p.parent.iterdir()), [p])
 
 
+CONFIGS_UF = {
+    "3220": cs(("19313", "BANANEIRAS", {"0001": ["0001", "0002"]}), ("20000", "QUEBRADO", {"0001": ["0001"]})),
+    "452": cs(("19313", "BANANEIRAS", {"0001": ["0001", "0003"]})),
+    "453": {},
+}
+
+
+def mapa_uf(quebrado):
+    m = {q.url_cs(p, "pb"): json.dumps(c).encode() for p, c in CONFIGS_UF.items() if c}
+    m.update(mapa_bananeiras())
+    m[q.url_aux("3220", "pb", "20000", "0001", "0001")] = quebrado
+    return m
+
+
+class TestUf(unittest.TestCase):
+    def test_falha_isolada_e_retomada(self):
+        with tempfile.TemporaryDirectory() as d:
+            saida = Path(d)
+            rede = urllib.error.URLError("503")
+            self.assertEqual(q.rodar_uf("pb", saida, baixar=fake_baixar(mapa_uf(rede)), paralelo=2), 1)
+            feito = saida / "pb" / "19313.json"
+            self.assertTrue(feito.exists())
+            self.assertFalse((saida / "pb" / "20000.json").exists())
+            self.assertEqual(json.loads((saida / "pb" / "index.json").read_text(encoding="utf-8"))[0][1], "BANANEIRAS")
+            antes = feito.read_bytes()
+
+            segunda = mapa_uf(aux("h"))
+            for url in mapa_bananeiras():
+                del segunda[url]
+            self.assertEqual(q.rodar_uf("pb", saida, baixar=fake_baixar(segunda), paralelo=2), 0)
+            self.assertEqual(feito.read_bytes(), antes)
+            self.assertEqual(json.loads((saida / "pb" / "20000.json").read_text(encoding="utf-8"))["secoes"], {"0001/0001": {"3220": None}})
+
+    def test_prazo_esgotado_nao_comeca_municipio(self):
+        with tempfile.TemporaryDirectory() as d:
+            saida = Path(d)
+            self.assertEqual(q.rodar_uf("pb", saida, baixar=fake_baixar(mapa_uf(aux("h"))), ate=0), 1)
+            self.assertEqual(sorted(p.name for p in (saida / "pb").iterdir()), ["index.json"])
+
+
 if __name__ == "__main__":
     unittest.main()

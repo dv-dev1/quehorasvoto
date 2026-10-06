@@ -188,6 +188,31 @@ def escrever_json(caminho, obj):
     os.replace(tmp, caminho)
 
 
+def rodar_uf(uf, saida, baixar=baixar, paralelo=8, ate=None):
+    # Retomável: o JSON gravado é o checkpoint, e a próxima rodada da Action pula o que já existe.
+    configs = {p: carregar_cs(p, uf, baixar) for p in PLEITOS}
+    destino = Path(saida) / uf
+    escrever_json(destino / "index.json", indice(configs["3220"]))
+    muns = [m["cd"] for m in _municipios(configs["3220"])]
+    inicio, feitos, pulados, falhas = time.monotonic(), 0, 0, 0
+    for mun in muns:
+        arquivo = destino / f"{mun}.json"
+        if arquivo.exists():
+            pulados += 1
+            continue
+        if ate is not None and time.monotonic() - inicio >= ate:
+            break
+        try:
+            escrever_json(arquivo, montar_municipio(uf, mun, configs, baixar=baixar, paralelo=paralelo))
+            feitos += 1
+        except Exception as e:  # noqa: BLE001 — um município ruim não pode derrubar a UF inteira
+            falhas += 1
+            print(f"falha {uf}/{mun}: {e!r}", file=sys.stderr)
+    faltam = sum(not (destino / f"{m}.json").exists() for m in muns)
+    print(f"{uf}: feitos {feitos}, pulados {pulados}, falhas {falhas}, faltam {faltam}")
+    return 0 if faltam == 0 else 1
+
+
 def main(argv=None):
     ap = argparse.ArgumentParser(prog="quehorasvoto")
     sub = ap.add_subparsers(dest="cmd", required=True)
@@ -200,6 +225,11 @@ def main(argv=None):
     m.add_argument("mun")
     m.add_argument("--saida", default="site/data")
     m.add_argument("--paralelo", type=int, default=8)
+    u = sub.add_parser("uf", help="todos os municípios de uma UF, retomável")
+    u.add_argument("uf")
+    u.add_argument("--saida", default="site/data")
+    u.add_argument("--paralelo", type=int, default=8)
+    u.add_argument("--ate", type=float, help="não começa município novo depois de N segundos")
     a = ap.parse_args(argv)
     if a.cmd == "secao":
         print(json.dumps(processar_secao(a.pleito, a.uf.lower(), a.mun, a.zona, a.secao)))
@@ -210,6 +240,8 @@ def main(argv=None):
         escrever_json(destino / f"{a.mun}.json", montar_municipio(uf, a.mun, configs, paralelo=a.paralelo))
         escrever_json(destino / "index.json", indice(configs["3220"]))
         print(destino / f"{a.mun}.json")
+    if a.cmd == "uf":
+        return rodar_uf(a.uf.lower(), a.saida, paralelo=a.paralelo, ate=a.ate)
     return 0
 
 
