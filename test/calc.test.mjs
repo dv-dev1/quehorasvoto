@@ -42,6 +42,14 @@ test('melhorBloco ignora bloco vazio e desempata por menos eleitores e mais cedo
   assert.equal(melhorBloco([]), null);
 });
 
+test('melhorBloco ignora quem votou na fila depois do fechamento', () => {
+  const eleitores = [...Array(18).fill(10), 2];
+  const s = serie({ inicio: '08:00', eleitores, fila: [...Array(17).fill(3), 0, 0] });
+  assert.equal(melhorBloco(s).hora, '16:30');
+  const acre = serie({ inicio: '06:00', eleitores, fila: [...Array(17).fill(3), 0, 0] });
+  assert.equal(melhorBloco(acre).hora, '14:30');
+});
+
 test('lerHash aceita só o formato esperado', () => {
   assert.deepEqual(lerHash('#pb/19313/0014/0001'), { uf: 'pb', mun: '19313', zona: '0014', secao: '0001' });
   assert.deepEqual(lerHash('#PB/19313'), { uf: 'pb', mun: '19313' });

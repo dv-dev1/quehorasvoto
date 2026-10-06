@@ -28,8 +28,14 @@ export function serie(d) {
 
 export const linhaDoTempo = (...series) => [...new Set(series.flat().map((b) => b.hora))].sort();
 
+// A urna abre na hora cheia e fica 9 h aberta; depois disso só vota quem já estava na fila, e esse bloco
+// vazio venceria o desempate por menos eleitores.
+const BLOCOS_DE_VOTACAO = 18;
+
 export function melhorBloco(s) {
-  const com = s.filter((b) => b.eleitores > 0);
+  if (!s.length) return null;
+  const fim = horaDoBloco(`${s[0].hora.slice(0, 2)}:00`, BLOCOS_DE_VOTACAO);
+  const com = s.filter((b) => b.eleitores > 0 && b.hora < fim);
   if (!com.length) return null;
   return com.reduce((a, b) => (b.pct < a.pct || (b.pct === a.pct && b.eleitores < a.eleitores) ? b : a));
 }
