@@ -2,9 +2,9 @@ import http.client
 import io
 import json
 import tempfile
+import unittest
 import urllib.error
 import zipfile
-import unittest
 from pathlib import Path
 from unittest import mock
 
