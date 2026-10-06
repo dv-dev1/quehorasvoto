@@ -29,7 +29,7 @@ O eleitor escolhe UF > município > zona > seção e vê, em blocos de meia hora
 
 ## Calibração (05/10/2026)
 
-Amostra: 21 seções do 1º turno de 2026, sendo 7 UFs com 2 seções do maior município e 1 do menor.
+Amostra: 21 seções do 1º turno de 2026, sendo 7 UFs com 2 seções do maior município e 1 do menor. Uma veio sem dado, então 20 entram nas estatísticas.
 
 ```
 sp 71072 0001/0001: 257 eleitores, 34% fila, gap mediano 39.0 s
@@ -57,7 +57,7 @@ histograma de gaps (início do balde de 5 s: contagem): [(15, 91), (20, 640), (2
 pct por bloco (blocos com 5+ eleitores, n=360): p25=0.0 p50=19.0 p75=40.75 p85=56.0 p90=59.9
 ```
 
-Decisão: GAP_FILA = 30 s; tranquilo < 25%, movimentado 25–50%, fila > 50%. O histograma não tem vale entre 15 s e 60 s: sobe até o pico em 30 s e depois só cai. Nenhum gap fica abaixo de 15 s, que é o tempo mínimo do mesário entre um voto e a próxima habilitação. Os percentis por bloco (p50 = 19, dentro de 15–40, e p90 = 59,9, acima de 50) mantêm os limites 25/50.
+Decisão: GAP_FILA = 30 s; tranquilo < 25%, movimentado 25–50%, fila > 50%. O histograma não tem vale entre 15 s e 60 s: sobe até o pico em 30 s e depois só cai. Nenhum gap observado ficou abaixo de 15 s. Os percentis por bloco (p50 = 19, dentro de 15–40, e p90 = 59,9, acima de 50) mantêm os limites 25/50.
 
 ## Critério de aceite
 
