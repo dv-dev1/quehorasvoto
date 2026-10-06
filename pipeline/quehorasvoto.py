@@ -4,12 +4,16 @@ import argparse
 import http.client
 import io
 import json
+import os
 import sys
 import time
+import unicodedata
 import urllib.error
 import urllib.request
 import zipfile
 import zlib
+from concurrent.futures import ThreadPoolExecutor
+from pathlib import Path
 
 PLEITOS = {
     "3220": ("ele2026", "04/10/2026"),
@@ -124,6 +128,66 @@ def processar_secao(pleito, uf, mun, zona, secao, baixar=baixar):
     return blocos(eventos(logs, PLEITOS[pleito][1])) if logs else None
 
 
+def carregar_cs(pleito, uf, baixar=baixar):
+    # DF não tem eleição em 2024 e muitos estados não têm 2º turno: a config simplesmente não existe.
+    dados = baixar(url_cs(pleito, uf))
+    return json.loads(dados) if dados else {}
+
+
+def _municipios(cs):
+    return (cs.get("abr") or [{}])[0].get("mu", [])
+
+
+def secoes_cs(cs, mun):
+    for m in _municipios(cs):
+        if m["cd"] == mun:
+            return m["nm"], [f"{z['cd']}/{s['ns']}" for z in m["zon"] for s in z["sec"]]
+    return None, []
+
+
+def ranking(secoes, pleito="3220"):
+    linhas = []
+    for chave, por_pleito in secoes.items():
+        d = por_pleito.get(pleito)
+        if d:
+            n = sum(d["eleitores"])
+            linhas.append((sum(d["fila"]) / n, n, chave))
+    linhas.sort(key=lambda x: (-x[0], -x[1], x[2]))
+    return [[chave, round(100 * r), n] for r, n, chave in linhas]
+
+
+def montar_municipio(uf, mun, configs, baixar=baixar, paralelo=8):
+    nome, tarefas = None, []
+    for pleito, cs in configs.items():
+        nm, chaves = secoes_cs(cs, mun)
+        nome = nome or nm
+        tarefas += [(pleito, chave) for chave in chaves]
+    if nome is None:
+        raise ValueError(f"município {uf}/{mun} não está em nenhuma config")
+    with ThreadPoolExecutor(paralelo) as ex:
+        resultados = ex.map(lambda t: processar_secao(t[0], uf, mun, *t[1].split("/"), baixar=baixar), tarefas)
+        secoes = {}
+        for (pleito, chave), r in zip(tarefas, resultados):
+            secoes.setdefault(chave, {})[pleito] = r
+    secoes = dict(sorted(secoes.items()))
+    return {"uf": uf, "cd": mun, "nm": nome, "secoes": secoes, "ranking": ranking(secoes)}
+
+
+def _sem_acento(s):
+    return unicodedata.normalize("NFD", s).encode("ascii", "ignore").decode()
+
+
+def indice(cs):
+    return sorted(([m["cd"], m["nm"]] for m in _municipios(cs)), key=lambda x: _sem_acento(x[1]))
+
+
+def escrever_json(caminho, obj):
+    caminho.parent.mkdir(parents=True, exist_ok=True)
+    tmp = caminho.with_suffix(".tmp")
+    tmp.write_text(json.dumps(obj, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
+    os.replace(tmp, caminho)
+
+
 def main(argv=None):
     ap = argparse.ArgumentParser(prog="quehorasvoto")
     sub = ap.add_subparsers(dest="cmd", required=True)
@@ -131,9 +195,21 @@ def main(argv=None):
     s.add_argument("--pleito", choices=list(PLEITOS), default="3220")
     for nome in ("uf", "mun", "zona", "secao"):
         s.add_argument(nome)
+    m = sub.add_parser("municipio", help="JSON de um município")
+    m.add_argument("uf")
+    m.add_argument("mun")
+    m.add_argument("--saida", default="site/data")
+    m.add_argument("--paralelo", type=int, default=8)
     a = ap.parse_args(argv)
     if a.cmd == "secao":
         print(json.dumps(processar_secao(a.pleito, a.uf.lower(), a.mun, a.zona, a.secao)))
+    if a.cmd == "municipio":
+        uf = a.uf.lower()
+        configs = {p: carregar_cs(p, uf) for p in PLEITOS}
+        destino = Path(a.saida) / uf
+        escrever_json(destino / f"{a.mun}.json", montar_municipio(uf, a.mun, configs, paralelo=a.paralelo))
+        escrever_json(destino / "index.json", indice(configs["3220"]))
+        print(destino / f"{a.mun}.json")
     return 0
 
 
