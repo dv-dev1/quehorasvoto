@@ -1,0 +1,6 @@
+{
+  "name": "quehorasvoto",
+  "compatibility_date": "2026-10-01",
+  // Só assets: os dados já vêm prontos do pipeline, o Worker não fala com o TSE.
+  "assets": { "directory": "./site" }
+}
