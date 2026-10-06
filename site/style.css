@@ -11,8 +11,8 @@ h2 { font-size: 1rem; margin: 0; }
 header p, .nota, .legenda, footer { color: var(--fraco); }
 .card { background: var(--card); border: 1px solid var(--borda); border-radius: var(--raio); padding: 20px; margin: 0; }
 .seletor { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; }
-.campo { display: grid; gap: 4px; font-size: 0.85rem; color: var(--fraco); }
-select { background: var(--fundo); color: var(--texto); border: 1px solid var(--borda); border-radius: 10px; padding: 12px; font-size: 1rem; }
+.campo { display: grid; gap: 4px; min-width: 0; font-size: 0.85rem; color: var(--fraco); }
+select { width: 100%; background: var(--fundo); color: var(--texto); border: 1px solid var(--borda); border-radius: 10px; padding: 12px; font-size: 1rem; }
 select:focus-visible, button:focus-visible, a:focus-visible { outline: 2px solid var(--acento); outline-offset: 2px; }
 .tse, a { color: var(--acento); }
 .tse { grid-column: 1 / -1; }
