@@ -23,3 +23,7 @@ jobs:
           fora = nomes - set(sys.stdlib_module_names)
           sys.exit(f"fora da stdlib: {fora}" if fora else 0)
           EOF
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: node --test test/calc.test.mjs
