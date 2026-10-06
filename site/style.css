@@ -78,3 +78,9 @@ footer { font-size: 0.85rem; padding-top: 8px; }
 .alternar { align-items: center; }
 .alternar #comparar { font-size: 0.85rem; color: var(--fraco); }
 @media (max-width: 519px) { .alternar #comparar { flex-basis: 100%; } }
+.leitura { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 16px; margin: 0 0 12px; min-height: 1.5em; font-variant-numeric: tabular-nums; }
+.leitura span { color: var(--fraco); }
+.coluna { cursor: pointer; border-radius: 6px; }
+.coluna.ativa { background: rgba(232, 234, 237, 0.06); }
+.coluna.ativa .hora { color: var(--texto); }
+.nota-grafico { margin: -8px 0 16px; font-size: 0.85rem; color: var(--fraco); }

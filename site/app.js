@@ -10,6 +10,7 @@ const UFS = [
   ['se', 'Sergipe'], ['to', 'Tocantins'],
 ];
 const ONDE_VOTAR = 'https://www.tse.jus.br/servicos-eleitorais/autoatendimento-eleitoral#/';
+const votaram = (n) => `${n} ${n === 1 ? 'votou' : 'votaram'}`;
 const ROTULO = { tranquilo: 'Tranquilo', movimentado: 'Movimentado', fila: 'Fila' };
 const TURNO24 = { 452: '2024 · 1º turno', 453: '2024 · 2º turno' };
 const CHAVE = 'qhv:ultima';
@@ -42,10 +43,16 @@ function Grafico({ s26, s24, rotulo24, melhor }) {
   const por = (s) => Object.fromEntries(s.map((b) => [b.hora, b]));
   const a = por(s26), b = por(s24);
   const alt = (x) => `${(100 * x.eleitores) / max}%`;
+  const [foco, setFoco] = useState(melhor.hora);
+  const x = a[foco], y = b[foco];
   return html`
+    <p class="leitura" aria-hidden="true"><strong>${faixa(foco)}</strong>
+      <span>2026: ${x ? `${votaram(x.eleitores)}, ${x.pct}% pegaram fila` : 'ninguém votou'}</span>
+      ${s24.length ? html`<span>${rotulo24}: ${votaram(y ? y.eleitores : 0)}</span>` : ''}</p>
     <div class="grafico" role="img" aria-label=${`Eleitores por meia hora no 1º turno de 2026, com ${rotulo24 || '2024'} atrás. Melhor horário: ${faixa(melhor.hora)}.`}>
       ${horas.map((h) => html`
-        <div class=${`coluna ${melhor.hora === h ? 'melhor' : ''}`}>
+        <div class=${`coluna ${melhor.hora === h ? 'melhor' : ''} ${foco === h ? 'ativa' : ''}`}
+          onPointerEnter=${() => setFoco(h)} onClick=${() => setFoco(h)}>
           <div class="barras">
             ${b[h] && html`<div class="fantasma" style=${{ height: alt(b[h]) }}></div>`}
             ${a[h] && html`<div class=${`barra ${a[h].nivel}`} style=${{ height: alt(a[h]) }}></div>`}
@@ -54,7 +61,8 @@ function Grafico({ s26, s24, rotulo24, melhor }) {
         </div>`)}
     </div>
     <p class="legenda"><strong>1º turno 2026:</strong><span><i class="ponto tranquilo"></i>Tranquilo</span><span><i class="ponto movimentado"></i>Movimentado</span>
-      <span><i class="ponto fila"></i>Fila</span>${s24.length ? html`<span><i class="ponto fantasma"></i>Atrás: ${rotulo24}</span>` : ''}</p>
+      <span><i class="ponto fila"></i>Fila</span>${s24.length ? html`<span><i class="ponto fantasma"></i>Cinza: ${rotulo24}</span>` : ''}</p>
+    <p class="nota-grafico">Altura: quantos votaram. Cor: quantos desses pegaram fila. Passe o dedo ou o mouse nas barras.</p>
     <details><summary>Ver tabela</summary>
       <table><thead><tr><th>Horário</th><th>Votaram em 2026</th><th>Pegaram fila</th><th>Nível</th></tr></thead>
         <tbody>${s26.map((x) => html`<tr><td>${faixa(x.hora)}</td><td>${x.eleitores}</td><td>${x.pct}%</td><td>${ROTULO[x.nivel]}</td></tr>`)}</tbody>
@@ -84,7 +92,7 @@ function Secao({ mun, chave }) {
       <span class="rotulo">Melhor horário</span>
       <strong class="numero">${faixa(melhor.hora)}</strong>
       <span class=${`chip ${melhor.nivel}`}>${ROTULO[melhor.nivel]}</span>
-      <p>No 1º turno, ${melhor.eleitores} ${melhor.eleitores === 1 ? 'pessoa votou' : 'pessoas votaram'} nesse bloco e ${melhor.pct}% pegaram fila.</p>
+      <p>No 1º turno de 2026, ${melhor.eleitores} ${melhor.eleitores === 1 ? 'pessoa votou' : 'pessoas votaram'} nesse bloco e ${melhor.pct}% pegaram fila.</p>
     </section>
     <div class="numeros">
       <div class="card"><span class="rotulo">Votaram em 2026</span><strong>${total}</strong></div>
@@ -94,8 +102,8 @@ function Secao({ mun, chave }) {
     </div>
     <section class="card">
       <div class="titulo"><h2>Eleitores por meia hora no 1º turno de 2026</h2>
-        ${turnos.length > 1 && html`<div class="alternar" role="group" aria-labelledby="comparar"><span id="comparar">Comparar com 2024</span>${turnos.map((p) => html`
-          <button aria-pressed=${p === p24} onClick=${() => setP24(p)}>${TURNO24[p].split(' · ')[1]}</button>`)}</div>`}
+        ${turnos.length > 1 && html`<div class="alternar" role="group" aria-labelledby="comparar"><span id="comparar">Cinza atrás:</span>${turnos.map((p) => html`
+          <button aria-pressed=${p === p24} onClick=${() => setP24(p)}>${TURNO24[p]}</button>`)}</div>`}
       </div>
       <${Grafico} s26=${s26} s24=${s24} rotulo24=${TURNO24[p24]} melhor=${melhor} />
     </section>`;
