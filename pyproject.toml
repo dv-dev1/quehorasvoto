@@ -1,0 +1,10 @@
+[project]
+name = "quehorasvoto"
+version = "0.1.0"
+description = "Melhor horário para votar na sua seção, a partir dos logs de urna do TSE"
+requires-python = ">=3.11"
+license = "MIT"
+
+[tool.ruff]
+line-length = 110
+target-version = "py311"
