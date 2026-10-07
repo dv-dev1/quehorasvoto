@@ -106,7 +106,7 @@ export function Mapa({ sel, indice, aoUf, aoMun }) {
           </svg>
           ${!sel.uf && Object.entries(formas).filter(([codigo]) => !LATERAIS.has(codigo)).map(([codigo, d]) => html`
             <span class=${`mapa-rotulo ${largura < 520 ? 'compacto' : ''}`} style=${{ left: `${d.x / mapa.w * 100}%`, top: `${d.y / mapa.h * 100}%`, color: tinta(d.pct) }} aria-hidden="true">
-              <strong>${codigo.toUpperCase()}</strong>${largura >= 520 && html`<span>${percentual(d.pct)}</span>`}
+              <strong>${codigo.toUpperCase()}</strong><span>${percentual(d.pct)}</span>
             </span>`)}
         </div>
         ${!sel.uf && html`

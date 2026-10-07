@@ -109,6 +109,7 @@ option { background: var(--sup); color: var(--texto); }
 .mapa-rotulo strong { font-size: 12px; font-weight: 600; }
 .mapa-rotulo.compacto strong { font-size: 10px; }
 .mapa-rotulo span { font-size: 11px; }
+.mapa-rotulo.compacto span { font-size: 9px; }
 .mapa-linhas { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
 .mapa-etiqueta { position: absolute; right: 0; transform: translateY(-50%); display: flex; align-items: center; justify-content: center; gap: 4px; height: 28px; width: 64px; border: 0; border-radius: 6px; font-size: 11px; font-variant-numeric: tabular-nums; padding: 0 4px; }
 .mapa-etiqueta strong { font-size: 12px; font-weight: 600; }
