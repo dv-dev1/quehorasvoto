@@ -27,6 +27,38 @@ O eleitor escolhe UF > município > zona > seção e vê, em blocos de meia hora
 - Eventos: `Eleitor foi habilitado` e `O voto do eleitor foi computado`, só linhas com a data do pleito
 - Sem cabeçalho CORS: o navegador não consegue buscar direto do TSE
 
+## Calibração (05/10/2026)
+
+Amostra: 21 seções do 1º turno de 2026, sendo 7 UFs com 2 seções do maior município e 1 do menor. Uma veio sem dado, então 20 entram nas estatísticas.
+
+```
+sp 71072 0001/0001: 257 eleitores, 34% fila, gap mediano 39.0 s
+sp 71072 0001/0256: 271 eleitores, 25% fila, gap mediano 38.0 s
+sp 62367 0225/0077: 275 eleitores, 58% fila, gap mediano 27.0 s
+ba 38490 0001/0001: 326 eleitores, 40% fila, gap mediano 32 s
+ba 38490 0001/0245: 215 eleitores, 2% fila, gap mediano 50.0 s
+ba 33111 0147/0001: 242 eleitores, 23% fila, gap mediano 41 s
+am 02550 0001/0550: 324 eleitores, 21% fila, gap mediano 35 s
+am 02550 0001/0801: 237 eleitores, 43% fila, gap mediano 32.0 s
+am 02453 0048/0001: 247 eleitores, 16% fila, gap mediano 38.5 s
+rs 88013 0001/0001: 241 eleitores, 29% fila, gap mediano 42.0 s
+rs 88013 0001/0158: 215 eleitores, 11% fila, gap mediano 44.0 s
+rs 86100 0075/0062: 284 eleitores, 49% fila, gap mediano 30 s
+ac 01392 0001/0003: 226 eleitores, 7% fila, gap mediano 51 s
+ac 01392 0001/0536: sem dado
+ac 01031 0003/0058: 183 eleitores, 5% fila, gap mediano 66.0 s
+pb 20516 0001/0001: 236 eleitores, 5% fila, gap mediano 44 s
+pb 20516 0001/0167: 316 eleitores, 51% fila, gap mediano 29 s
+pb 21539 0028/0085: 262 eleitores, 47% fila, gap mediano 31 s
+go 93734 0001/0001: 223 eleitores, 13% fila, gap mediano 48.5 s
+go 93734 0001/0280: 313 eleitores, 39% fila, gap mediano 34.0 s
+go 92231 0008/0279: 256 eleitores, 9% fila, gap mediano 41 s
+histograma de gaps (início do balde de 5 s: contagem): [(15, 91), (20, 640), (25, 711), (30, 732), (35, 555), (40, 410), (45, 272), (50, 234), (55, 159), (60, 148), (65, 131), (70, 98), (75, 95), (80, 88), (85, 73), (90, 78), (95, 56), (100, 50), (105, 36), (110, 35), (115, 34), (120, 403)]
+pct por bloco (blocos com 5+ eleitores, n=360): p25=0.0 p50=19.0 p75=40.75 p85=56.0 p90=59.9
+```
+
+Decisão: GAP_FILA = 30 s; tranquilo < 25%, movimentado 25–50%, fila > 50%. O histograma não tem vale entre 15 s e 60 s: sobe até o pico em 30 s e depois só cai. Nenhum gap observado ficou abaixo de 15 s. Os percentis por bloco (p50 = 19, dentro de 15–40, e p90 = 59,9, acima de 50) mantêm os limites 25/50.
+
 ## Critério de aceite
 
 1. Parser de uma seção:
