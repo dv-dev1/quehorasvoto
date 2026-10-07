@@ -14,6 +14,7 @@ $ python3 pipeline/quehorasvoto.py secao --pleito 3220 pb 19313 0014 0001
 
 1. `pipeline/quehorasvoto.py` baixa o `aux.json` e o log (`.jez`) de cada seção em `resultados.tse.jus.br` e conta os eventos `Eleitor foi habilitado` e `O voto do eleitor foi computado`.
 2. A Action `dados` roda isso para as 27 UFs e grava um JSON por município em `site/data/`.
+   `pipeline/mapa.py` gera os contornos (malha do IBGE) e a % de fila por estado e município em `site/data/mapa/`.
 3. `site/` é uma página estática (Preact + htm, sem build) servida por um Cloudflare Worker.
 
 Eleições cobertas: 1º turno de 2026 e 1º e 2º turnos de 2024, as únicas com log por seção na API do TSE.

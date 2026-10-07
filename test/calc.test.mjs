@@ -2,8 +2,16 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
   pct, nivel, horaDoBloco, faixa, serie, linhaDoTempo, melhorBloco, lerHash, montarHash, posicaoNoRanking,
-  aberturaDoMunicipio, nome,
+  aberturaDoMunicipio, nome, faixaFila,
 } from '../site/calc.mjs';
+
+test('faixaFila mantém seis degraus nas bordas e separa ausência de dados', () => {
+  for (const [p, esperado] of [
+    [0, 0], [9.9, 0], [10, 1], [14.9, 1], [15, 2], [19.9, 2],
+    [20, 3], [24.9, 3], [25, 4], [29.9, 4], [30, 5], [100, 5],
+    [null, null], [undefined, null],
+  ]) assert.equal(faixaFila(p), esperado, `percentual ${p}`);
+});
 
 test('nivel nas bordas', () => {
   assert.equal(nivel(24), 'tranquilo');

@@ -17,11 +17,13 @@ jobs:
         run: |
           python - <<'EOF'
           import ast, sys
-          arvore = ast.parse(open("pipeline/quehorasvoto.py", encoding="utf-8").read())
-          nomes = {a.name.split(".")[0] for n in ast.walk(arvore) if isinstance(n, ast.Import) for a in n.names}
-          nomes |= {n.module.split(".")[0] for n in ast.walk(arvore) if isinstance(n, ast.ImportFrom) and n.module}
-          fora = nomes - set(sys.stdlib_module_names)
-          sys.exit(f"fora da stdlib: {fora}" if fora else 0)
+          for arquivo in ("pipeline/quehorasvoto.py", "pipeline/mapa.py"):
+              arvore = ast.parse(open(arquivo, encoding="utf-8").read())
+              nomes = {a.name.split(".")[0] for n in ast.walk(arvore) if isinstance(n, ast.Import) for a in n.names}
+              nomes |= {n.module.split(".")[0] for n in ast.walk(arvore) if isinstance(n, ast.ImportFrom) and n.module}
+              fora = nomes - set(sys.stdlib_module_names) - {"quehorasvoto"}
+              if fora:
+                  sys.exit(f"{arquivo} fora da stdlib: {fora}")
           EOF
       - uses: actions/setup-node@v4
         with:

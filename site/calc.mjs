@@ -1,5 +1,13 @@
 export const LIMITES = { movimentado: 25, fila: 50 };
 
+export const FAIXAS_FILA = [10, 15, 20, 25, 30];
+
+export function faixaFila(p) {
+  if (p == null) return null;
+  const i = FAIXAS_FILA.findIndex((limite) => p < limite);
+  return i < 0 ? FAIXAS_FILA.length : i;
+}
+
 export const pct = (fila, eleitores) => (eleitores ? Math.round((100 * fila) / eleitores) : 0);
 
 export function nivel(p) {

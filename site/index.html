@@ -5,11 +5,20 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Que horas voto?</title>
   <meta name="description" content="Veja quantas pessoas votaram em cada meia hora na sua seção e escolha o horário mais vazio para o 2º turno.">
-  <meta name="theme-color" content="#0d0f12">
+  <meta name="theme-color" content="#0f0e0d">
+  <link rel="preload" href="fonts/geist-latin.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="style.css">
   <script type="module" src="app.js"></script>
 </head>
 <body>
+  <!--
+THESIS: um instrumento de apuração para uma pergunta só — "a que horas eu vou?". O mapa é a navegação e o contexto; a resposta é uma frase. Recusa a pilha de cards iguais e o template de número gigante com stats.
+OWN-WORLD: preto quente #0f0e0d, superfícies #1b1a17 com fio de 1px rgba(250,250,249,.08), texto #fafaf9, apoio #a6a39c; Geist para interface e números tabulares, Faustina para títulos e a frase da resposta; pílulas de raio 100px; mapa em rampa laranja de 6 degraus (#634533→#ffab69) com bordas pretas.
+STORY: o eleitor vê o país pintado pela fila do 1º turno, toca no estado, toca no município (ou usa os selects), escolhe zona e seção e lê "Vá entre 13:00 e 13:30".
+FIRST VIEWPORT: 375 px — título Faustina, linha de status com ponto, mapa do Brasil em largura total com etiquetas dos estados pequenos à direita, legenda da rampa; 1280 px — mapa à esquerda (sticky), seletor e resposta à direita.
+FORM: linguagem fixada pelo usuário (seuimposto.com); o roll de direção foi dispensado por isso (concept-seed degradado, sem seed).
+FINISH: unreviewed and undocumented is unfinished; this build ends with the finish review, the verdict, DESIGN.md, and every shipping raster carrying its provenance
+  -->
   <main id="app"><p class="carregando">Carregando…</p><noscript><p>Este site precisa de JavaScript para mostrar os dados.</p></noscript></main>
 </body>
 </html>

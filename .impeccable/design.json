@@ -1,0 +1,115 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-07T00:00:00Z",
+  "title": "Design System: Que horas voto?",
+  "extensions": {
+    "colorMeta": {
+      "f0": { "role": "primary", "displayName": "Laranja de fila, degrau 0 (< 10%)", "canonical": "#634533", "tonalRamp": ["#634533", "#895433", "#a95e2c", "#d8732b", "#f88a3d", "#ffab69"] },
+      "f2": { "role": "primary", "displayName": "Laranja de fila, degrau 2 (15 a 20%)", "canonical": "#a95e2c", "tonalRamp": ["#634533", "#895433", "#a95e2c", "#d8732b", "#f88a3d", "#ffab69"] },
+      "f5": { "role": "primary", "displayName": "Laranja de fila, degrau 5 (30% ou mais)", "canonical": "#ffab69", "tonalRamp": ["#634533", "#895433", "#a95e2c", "#d8732b", "#f88a3d", "#ffab69"] },
+      "fundo": { "role": "neutral", "displayName": "Preto quente", "canonical": "#0f0e0d", "tonalRamp": ["#0f0e0d", "#1b1a17", "#24221f", "#2a2825"] },
+      "tranquilo": { "role": "secondary", "displayName": "Tranquilo (< 25%)", "canonical": "#0ca30c" },
+      "movimentado": { "role": "secondary", "displayName": "Movimentado (25 a 50%)", "canonical": "#fab219" },
+      "fila": { "role": "secondary", "displayName": "Fila (> 50%)", "canonical": "#d03b3b" }
+    },
+    "typographyMeta": {
+      "display": { "displayName": "Título principal", "purpose": "Nome da ferramenta em Faustina." },
+      "resposta": { "displayName": "Frase da resposta", "purpose": "Faustina na frase, Geist 600 tabular no horário." },
+      "numero": { "displayName": "Número", "purpose": "Métricas da resposta em Geist 600 tabular." }
+    },
+    "scales": {
+      "faixaFila": { "limites": [10, 15, 20, 25, 30], "fonte": "site/calc.mjs FAIXAS_FILA", "tintaEscuraDoDegrau": 3 }
+    },
+    "shadows": [
+      { "name": "tooltip", "value": "0 8px 24px rgba(0,0,0,.45)", "purpose": "Card flutuante do mapa, só com hover real." }
+    ],
+    "motion": [
+      { "name": "entrada-estado", "value": "420ms cubic-bezier(.16,1,.3,1)", "purpose": "Opacidade de .5 a 1 e escala de .97 a 1 na entrada do estado; desligada com prefers-reduced-motion." }
+    ],
+    "breakpoints": [
+      { "name": "desktop", "value": "1024px" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Voltar ao Brasil",
+      "kind": "nav",
+      "refersTo": "voltar",
+      "description": "Navegação do estado para o mapa nacional.",
+      "html": "<button class=\"ds-voltar\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 16 16\" fill=\"none\" aria-hidden=\"true\"><path d=\"m10 3-5 5 5 5\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/></svg>Brasil</button>",
+      "css": ".ds-voltar { display:inline-flex; align-items:center; gap:4px; min-height:36px; padding:0 12px 0 8px; border-radius:100px; border:1px solid var(--fio); background:var(--pilula); color:var(--texto); font:inherit; font-size:13px; cursor:pointer; } .ds-voltar:hover { background:var(--pilula-ativa); } .ds-voltar:focus-visible { outline:2px solid var(--texto); outline-offset:2px; }"
+    },
+    {
+      "name": "Select nativo",
+      "kind": "input",
+      "refersTo": "select",
+      "description": "Campo com rótulo visível e controle nativo de 48px.",
+      "html": "<label class=\"ds-campo\"><span>Estado</span><select><option>Escolha</option><option>Paraíba</option></select></label>",
+      "css": ".ds-campo { display:grid; gap:6px; color:var(--apoio); font-size:13px; font-weight:500; } .ds-campo select { appearance:none; width:100%; height:48px; padding:0 32px 0 12px; background:var(--pilula) url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16' fill='none'%3E%3Cpath d='m4 6 4 4 4-4' stroke='%23a6a39c' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E\") no-repeat right 10px center; border:1px solid var(--fio-forte); border-radius:12px; color:var(--texto); font:inherit; font-size:16px; font-weight:400; cursor:pointer; } .ds-campo option { background:var(--sup); color:var(--texto); } .ds-campo select:hover:not(:disabled) { border-color:var(--apoio); } .ds-campo select:disabled { color:var(--apoio); background-color:rgba(250,250,249,.03); border-color:var(--fio); cursor:not-allowed; } .ds-campo select:focus-visible { outline:2px solid var(--texto); outline-offset:2px; }"
+    },
+    {
+      "name": "Nível de fila",
+      "kind": "chip",
+      "refersTo": "chip",
+      "description": "Ponto e texto comunicam o nível simultaneamente.",
+      "html": "<span class=\"ds-chip\"><i aria-hidden=\"true\"></i>Tranquilo</span>",
+      "css": ".ds-chip { display:inline-flex; align-items:center; gap:6px; height:28px; padding:0 10px; border-radius:100px; background:var(--pilula); color:var(--texto); font-size:13px; } .ds-chip i { width:8px; height:8px; border-radius:100px; background:var(--tranquilo); }"
+    },
+    {
+      "name": "Card",
+      "kind": "card",
+      "refersTo": "card",
+      "description": "Superfície tonal com fio fino, sem sombra.",
+      "html": "<section class=\"ds-card\"><h2>Eleitores por meia hora no 1º turno de 2026</h2></section>",
+      "css": ".ds-card { padding:20px; border:1px solid var(--fio); border-radius:16px; background:var(--sup); color:var(--texto); } .ds-card h2 { margin:0; font-family:Faustina, Georgia, serif; font-size:22px; font-weight:400; line-height:1.2; }"
+    },
+    {
+      "name": "Controle segmentado",
+      "kind": "custom",
+      "refersTo": "alternar",
+      "description": "Troca do turno de 2024 usado como fundo do gráfico, com rótulo visível.",
+      "html": "<div class=\"ds-comparacao\"><span>Cinza atrás:</span><div class=\"ds-alternar\" role=\"group\"><button aria-pressed=\"true\">2024 · 2º turno</button><button aria-pressed=\"false\">2024 · 1º turno</button></div></div>",
+      "css": ".ds-comparacao { display:grid; gap:6px; } .ds-comparacao > span { color:var(--apoio); font-size:13px; font-weight:500; } .ds-alternar { display:inline-flex; width:fit-content; padding:3px; border:1px solid var(--fio); border-radius:100px; background:var(--sup-2); } .ds-alternar button { min-height:36px; padding:0 10px; border:0; border-radius:100px; background:transparent; color:var(--apoio); font:inherit; font-size:13px; cursor:pointer; } .ds-alternar button:hover { color:var(--texto); } .ds-alternar button[aria-pressed=\"true\"] { background:var(--pilula-ativa); color:var(--texto); } .ds-alternar button:focus-visible { outline:2px solid var(--texto); outline-offset:2px; }"
+    },
+    {
+      "name": "Legenda da rampa",
+      "kind": "custom",
+      "refersTo": "mapa-etiqueta",
+      "description": "Seis degraus laranja mais Sem dado, com limites escritos.",
+      "html": "<div class=\"ds-escala\"><span><i style=\"background:var(--f0)\"></i>&lt;10</span><span><i style=\"background:var(--f1)\"></i>10</span><span><i style=\"background:var(--f2)\"></i>15</span><span><i style=\"background:var(--f3)\"></i>20</span><span><i style=\"background:var(--f4)\"></i>25</span><span><i style=\"background:var(--f5)\"></i>30+</span></div>",
+      "css": ".ds-escala { display:flex; font-size:11px; color:var(--apoio); font-variant-numeric:tabular-nums; } .ds-escala span { width:24px; text-align:center; } .ds-escala i { display:block; width:24px; height:10px; border-radius:2px; margin-bottom:5px; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "Um instrumento de apuração para uma pergunta só",
+    "overview": "O mapa é navegação e contexto; a resposta é uma frase em serifa. Preto quente, superfícies tonais com fios de 1px, pílulas, Geist na interface e Faustina nos títulos. A linguagem foi fixada pelo usuário; logo, nome e textos de referência não entram.",
+    "keyCharacteristics": [
+      "Preto quente, plano e tonal, sem sombra em cards",
+      "Faustina nos títulos e na frase, Geist no resto, números tabulares",
+      "Mapa em rampa laranja de seis degraus, status só no gráfico",
+      "Pílulas de raio 100px",
+      "Fontes locais com licença OFL"
+    ],
+    "rules": [
+      { "name": "The Tinta por Degrau Rule", "body": "Rótulos sobre o mapa usam fundo nos degraus 3 a 5 e texto nos degraus 0 a 2; f2 com texto mede 4,65:1 e é o piso.", "section": "colors" },
+      { "name": "The Status Reservado Rule", "body": "Verde, amarelo e vermelho significam nível do bloco e nada mais; nunca pintam o mapa.", "section": "colors" },
+      { "name": "The Nunca Só Cor Rule", "body": "Nível e ausência de dado sempre levam texto junto da cor.", "section": "colors" },
+      { "name": "The Número Tabular Rule", "body": "Todo número usa tabular-nums.", "section": "typography" },
+      { "name": "The Serifa Só Em Título Rule", "body": "Faustina aparece em h1 e h2, nunca em controle, rótulo ou dado.", "section": "typography" },
+      { "name": "The Plano Por Padrão Rule", "body": "Superfície em repouso não tem sombra; só o que flutua sobre o mapa tem.", "section": "elevation" }
+    ],
+    "dos": [
+      "Do manter Faustina só em títulos e na frase, Geist no resto, números tabulares.",
+      "Do escolher a cor da tinta do rótulo do mapa pelo degrau (escuro no 3 ao 5, claro no 0 ao 2).",
+      "Do reservar verde, amarelo e vermelho aos níveis do gráfico e do chip.",
+      "Do manter selects nativos, foco visível e a tabela do gráfico como caminho completo sem o mapa."
+    ],
+    "donts": [
+      "Don't usar logo, nome, marca ou textos do seuimposto.com; só a linguagem visual.",
+      "Don't pintar o mapa com a paleta de status nem usar o laranja fora do mapa e da sua legenda.",
+      "Don't empilhar cards iguais nem repetir o template de número gigante com estatísticas.",
+      "Don't usar gradiente, glow, glass, emoji ou glifo como ícone.",
+      "Don't substituir Faustina ou Geist por fonte de sistema nem carregar fonte de CDN."
+    ]
+  }
+}
